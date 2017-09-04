@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
+import os
 import util
 import ops
 import models
@@ -22,11 +23,11 @@ crop_size = args.crop_size
 
 ''' run '''
 with tf.Session() as sess:
-	realA = tf.placeholder(tf.float32, shape=[None, crop_size, crop_size, 3])
-	realB = tf.placeholder(tf.float32, shape=[None, crop_size, crop_size, 3])
+	a_real = tf.placeholder(tf.float32, shape=[None, crop_size, crop_size, 3])
+	b_real = tf.placeholder(tf.float32, shape=[None, crop_size, crop_size, 3])
 
-	a2b = models.generator(realA, 'a2b')
-	b2a = models.generator(realB, 'b2a')
+	a2b = models.generator(a_real, 'a2b')
+	b2a = models.generator(b_real, 'b2a')
 	b2a2b = models.generator(b2a, 'a2b', reuse=True)
 	a2b2a = models.generator(a2b, 'b2a', reuse=True)
 
@@ -39,8 +40,8 @@ with tf.Session() as sess:
 		print('Copy variables from %s' % ckpt_path)
 
 	#test
-	testA = glob('./datasets' + dataset + '/testA/*.jpg')
-	testB = glob('./datasets' + dataset + '/testB/*.jpg')
+	testA = glob('./datasets/' + dataset + '/testA/*.jpg')
+	testB = glob('./datasets/' + dataset + '/testB/*.jpg')
 
 	saveA_path = './test_predictions/' + dataset + '/testA/'
 	saveB_path = './test_predictions/' + dataset + '/testB/'

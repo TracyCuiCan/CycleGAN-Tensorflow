@@ -1,15 +1,15 @@
 from __future__ import division
-import tensorflowflow as tf 
-from utils import *
+import tensorflow as tf 
+from ops import *
 from imgUtil import *
 
-def discriminator(image, df_dim, reuse=False, name="discriminator"):
-	with tf.variable_scope(name):
+def discriminator(image, scope, df_dim=64, reuse=False):
+	with tf.variable_scope(scope + '_discriminator'):
 		#image is 256 x 256 x input_c_dim
 		if reuse:
 			tf.get_variable_scope().reuse_variables()
 		else:
-			assert tf.get_variable_scope.reuse is False
+			assert tf.get_variable_scope().reuse is False
 
 		h0 = lrelu(conv2d(image, df_dim, name='d_h0_conv')) # h0 is (128 x 128 x df_dim)
 		h1 = lrelu(instance_norm(conv2d(h0, df_dim*2, name='d_h1_conv'), 'd_bn1')) # h1 is (64 x 64 x df_dim*2)
@@ -19,8 +19,8 @@ def discriminator(image, df_dim, reuse=False, name="discriminator"):
 		return h4
 
 
-def generator(image, gf_dim, reuse=False, name="generator"):
-	with tf.variable_scope(name):
+def generator(image, scope, gf_dim=64, reuse=False):
+	with tf.variable_scope(scope + '_generator'):
 		if reuse:
 			tf.get_variable_scope().reuse_variables();
 		else:
@@ -28,7 +28,7 @@ def generator(image, gf_dim, reuse=False, name="generator"):
 
 		def residule_block(x, dim, name="res"):
 			y = tf.pad(x, [[0,0], [1,1], [1,1], [0,0]], "REFLECT")
-			y = instance_norm(conv2d(y, dim, 3, 1, padding='VALID', name=name+'_c1'), name+'_bn1'))
+			y = instance_norm(conv2d(y, dim, 3, 1, padding='VALID', name=name+'_c1'), name+'_bn1')
 			y = tf.pad(tf.nn.relu(y), [[0,0], [1,1], [1,1], [0,0]], "REFLECT")
 			y = instance_norm(conv2d(y, dim, 3, 1, padding='VALID', name=name+'_c2'), name+'_bn2')
 			return y + x

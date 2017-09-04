@@ -27,24 +27,24 @@ crop_size = args.crop_size
 epoch = args.epoch
 batch_size = args.batch_size
 lr = args.lr
-gpu_id = args.gpu_id
+#gpu_id = args.gpu_id
 
 
 ''' model '''
 a_real = tf.placeholder(tf.float32, shape=[None, crop_size, crop_size, 3])
 b_real = tf.placeholder(tf.float32, shape=[None, crop_size, crop_size, 3])
 a2b_sample = tf.placeholder(tf.float32, shape=[None, crop_size, crop_size, 3])
-b2a_sample = tf.placeholder(tf.float32, shpae=[None, crop_size, crop_size, 3])
+b2a_sample = tf.placeholder(tf.float32, shape=[None, crop_size, crop_size, 3])
 
-a2b = models.generator(a_real, 'a2b')
-b2a = models.generator(b_real, 'b2a')
+a2b = models.generator(a_real,'a2b')
+b2a = models.generator(b_real,'b2a')
 b2a2b = models.generator(b2a, 'a2b', reuse=True)
 a2b2a = models.generator(a2b, 'b2a', reuse=True)
 
-a_dis = models.discriminator(a_real, 'a')
+a_dis = models.discriminator(a_real,'a')
 b2a_dis = models.discriminator(b2a, 'a', reuse=True)
 b2a_sample_dis = models.discriminator(b2a_sample, 'a', reuse=True)
-b_dis = models.discriminator(b_real, 'b')
+b_dis = models.discriminator(b_real,'b')
 a2b_dis = models.discriminator(a2b, 'b', reuse=True)
 a2b_sample_dis = models.discriminator(a2b_sample, 'b', reuse=True)
 
@@ -79,19 +79,19 @@ sess = tf.Session()
 
 cnt, update_cnt = util.counter()
 
-trainA_path = glob('./datasets' + dataset + '/trainA/*.jpg')
-trainB_path = glob('./datasets' + dataset + '/trainB/*.jpg')
+trainA_path = glob('./datasets/' + dataset + '/trainA/*.jpg')
+trainB_path = glob('./datasets/' + dataset + '/trainB/*.jpg')
 trainA_pool = data.ImageData(sess, trainA_path, batch_size, load_size=load_size, crop_size=crop_size)
 trainB_pool = data.ImageData(sess, trainB_path, batch_size, load_size=load_size, crop_size=crop_size)
 
 
-testA_path = glob('./datasets' + dataset + '/testA/*.jpg')
-testB_path = glob('./datasets' + dataset + '/testB/*.jpg')
+testA_path = glob('./datasets/' + dataset + '/testA/*.jpg')
+testB_path = glob('./datasets/' + dataset + '/testB/*.jpg')
 testA_pool = data.ImageData(sess, testA_path, batch_size, load_size=load_size, crop_size=crop_size)
 testB_pool = data.ImageData(sess, testB_path, batch_size, load_size=load_size, crop_size=crop_size)
 
-a2b_pool = imgUtils.ImagePool()
-b2a_pool = imgUtils.ImagePool()
+a2b_pool = imgUtil.ImagePool()
+b2a_pool = imgUtil.ImagePool()
 
 ''' Summary '''
 summary_writer = tf.summary.FileWriter('./summaries/' + dataset, sess.graph)
@@ -147,7 +147,7 @@ try:
 
 		#save
 		if (it + 1) % 1000 == 0:
-			save_patch = saver.save(sess, '%s/Epoch_(%d)_(%dof%d).ckpt' % (ckpt_dir, epoch, it_epoch, batch_epoch))
+			save_path = saver.save(sess, '%s/Epoch_(%d)_(%dof%d).ckpt' % (ckpt_dir, epoch, it_epoch, batch_epoch))
 			print('Model saved in file: % s' % save_path)
 
 		#sample
@@ -159,9 +159,9 @@ try:
 
 			save_dir = './sample_image_while_training' + dataset
 			util.mkdir(save_dir + '/')
-			imgUtil.imsave(im.imerge(sample_opt, 2, 3), '%s/Epoch_(%d)_(%dof%d).jpg' % (save_dir, epoch, it_epoch, batch_epoch))
+			imgUtil.imsave(imgUtil.immerge(sample_opt, 2, 3), '%s/Epoch_(%d)_(%dof%d).jpg' % (save_dir, epoch, it_epoch, batch_epoch))
 
-exception Exception, e:
+except Exception as e:
 	coord.request_stop(e)
 finally:
 	print("Stop threads and close session!")

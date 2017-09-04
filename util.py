@@ -18,7 +18,7 @@ def load_checkpoint(checkpoint_dir, sess, saver):
 	ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
 	if ckpt and ckpt.model_checkpoint_path:
 		ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
-		ckpt.path = os.path.join(checkpoint_dir, ckpt_name)
+		ckpt_path = os.path.join(checkpoint_dir, ckpt_name)
 		saver.restore(sess, ckpt_path)
 		print(" [*] Load SUCCESS")
 		return ckpt_path

@@ -2,14 +2,21 @@ import tensorflow as tf
 import numpy as np
 import scipy.misc
 
+def transform(image, min_value=0., max_value=1., dtype=None):
+	assert \
+		np.min(image) >= -1.0 - 1e-5 and np.max(image) <= 1.0 + 1e-5 \
+		and (image.dtype == np.float32 or image.dtype == np.float64), \
+		'Input image should be float64 or float32 in range [-1., 1.]!'
+	if dtype is None: dtype = image.dtype
+	return ((image + 1.) / 2. * (max_value - min_value) + min_value).astype(dtype)
+
 def im2int(image):
 	'''transform images from float [-1., 1.] to uint8 [0, 255]'''
-	return tf.image.convert_image_dtype((image+1.0)/2.0, tf.uint8)
+	return transform(image, 0, 255, np.uint8)
 
 def im2float(image):
 	'''transform images from int [0, 255] to float [-1., 1.]'''
-	image = tf.image.convert_image_dtype(image, dtype=tf.float32)
-	return (image/127.5) - 1.0
+	return transform(image, 0.0, 1.0)
 
 def imread(path, is_grayscale = False):
 	'''read an image into [-1., 1.] of float64'''
@@ -20,7 +27,7 @@ def imread(path, is_grayscale = False):
 
 def imsave(image, path):
 	'''save an [-1., 1.] image'''
-	return scipy.misc.imsave(path, im2int(image))
+	return scipy.misc.imsave(path, transform(image, 0, 255, np.uint8))
 
 def imresize(image, size, interp='bilinear'):
 	'''
